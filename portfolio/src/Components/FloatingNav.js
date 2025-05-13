@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Briefcase, Github, Mail, UtensilsCrossed, ChartNoAxesCombined, FolderOpenDot } from 'lucide-react';
+import { Menu, X, Home, Briefcase, Github, Mail, Utensils, BarChart2, Folder } from 'lucide-react';
 
 const FloatingMobileNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 20, y: window.innerHeight - 100 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showTooltip, setShowTooltip] = useState(false);
   const location = useLocation();
   const buttonRef = useRef(null);
   const navContainerRef = useRef(null);
@@ -25,9 +26,9 @@ const FloatingMobileNav = () => {
   // Define the navigation icons map
   const icons = {
     Home,
-    Skills: UtensilsCrossed,
-    Experience: ChartNoAxesCombined,
-    Projects: FolderOpenDot,
+    Skills: Utensils,
+    Experience: BarChart2,
+    Projects: Folder,
     Education: Briefcase,
     Contact: Mail,
     Github
@@ -115,6 +116,29 @@ const FloatingMobileNav = () => {
     
     return wasDragged;
   };
+
+  // Show tooltip on component mount and hide after delay
+  useEffect(() => {
+    // Only show tooltip on mobile devices
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // Set a small delay before showing the tooltip
+      const showTimer = setTimeout(() => {
+        setShowTooltip(true);
+      }, 1000);
+      
+      // Hide tooltip after a few seconds
+      const hideTimer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 4000);
+      
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -238,7 +262,7 @@ const FloatingMobileNav = () => {
       {/* The main floating button */}
       <button
         ref={buttonRef}
-        className={`w-14 h-14 rounded-full flex items-center justify-center transform transition-all ${
+        className={`relative w-14 h-14 rounded-full flex items-center justify-center transform transition-all ${
           isOpen 
             ? 'bg-slate-700 rotate-45' 
             : 'bg-blue-800 rotate-0 hover:bg-blue-700'
@@ -259,7 +283,46 @@ const FloatingMobileNav = () => {
         ) : (
           <Menu size={24} className="text-white" />
         )}
+        
+        {/* Tooltip that appears and disappears */}
+        {showTooltip && (
+          <div 
+            className="absolute whitespace-nowrap bg-gray-900/90 text-white text-sm px-3 py-2 rounded-lg"
+            style={{
+              top: '-65px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+              pointerEvents: 'none',
+              width: 'max-content',
+              maxWidth: '200px',
+              animation: 'fadeInOut 3s ease-in-out'
+            }}
+          >
+            <div className="flex flex-col items-center left-1/2 -translate-x-[-50px]">
+              <div>Drag menu anywhere!</div>
+              <div 
+                className="absolute w-3 h-3 bg-gray-900/90 rotate-45"
+                style={{
+                  bottom: '-6px',
+                  left: '50%',
+                  transform: 'translateX(-50%)'
+                }}
+              ></div>
+            </div>
+          </div>
+        )}
       </button>
+
+      {/* CSS animation for the tooltip */}
+      <style jsx>{`
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translateY(10px) translateX(-50%); }
+          20% { opacity: 1; transform: translateY(0) translateX(-50%); }
+          80% { opacity: 1; transform: translateY(0) translateX(-50%); }
+          100% { opacity: 0; transform: translateY(-10px) translateX(-50%); }
+        }
+      `}</style>
     </div>
   );
 };

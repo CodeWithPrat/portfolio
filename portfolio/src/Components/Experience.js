@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Calendar, Briefcase, Code, Award, ExternalLink } from 'lucide-react';
+import { ChevronRight, Calendar, Briefcase, Code} from 'lucide-react';
 
 // Company logos (in real implementation, you would import actual logo files)
 const LogoPlaceholder = ({ company }) => {
